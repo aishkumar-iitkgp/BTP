@@ -17,5 +17,6 @@
         completions."
     </string>
     <string name="title_activity_test">test</string>
+    <string name="title_activity_create_entry">CreateEntryActivity</string>
 
 </resources>
