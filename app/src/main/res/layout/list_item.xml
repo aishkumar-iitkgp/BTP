@@ -8,13 +8,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Site ID"
-        android:id="@+id/site_id" />
+        android:id="@+id/site_id"
+        android:textColor="#000000"
+        android:textSize="20sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Date/Time"
-        android:id="@+id/date_time" />
+        android:id="@+id/date_time"
+        android:textColor="#000000"
+        android:textSize="18sp" />
 
 
 </LinearLayout>
