@@ -30,11 +30,11 @@ public class MyListFragment extends ListFragment {
 
         ListItem weather_data[] = new ListItem[]
                 {
-                        new ListItem("ID 1", "03"),
-                        new ListItem("ID 1", "03"),
-                        new ListItem("ID 1", "03"),
-                        new ListItem("ID 1", "03"),
-                        new ListItem("ID 1", "03")
+                        new ListItem("Site ID 1", "03/08/2016"),
+                        new ListItem("Site ID 32", "02/08/2016"),
+                        new ListItem("Site ID 4", "01/08/2016"),
+                        new ListItem("Site ID 10", "01/08/2016"),
+                        new ListItem("Site ID 6", "02/08/2016")
                 };
 
         CustomAdapter adapter = new CustomAdapter(getActivity(),
