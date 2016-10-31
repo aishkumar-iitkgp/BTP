@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 public class MyListFragment extends ListFragment {
 
+    DatabaseManager myDatabaseManager;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -28,42 +30,31 @@ public class MyListFragment extends ListFragment {
 
         super.onActivityCreated(savedInstanceState);
 
-        ListItem weather_data[] = new ListItem[]
-                {
-                        new ListItem("Site ID 1", "03/08/2016"),
-                        new ListItem("Site ID 32", "02/08/2016"),
-                        new ListItem("Site ID 4", "01/08/2016"),
-                        new ListItem("Site ID 10", "01/08/2016"),
-                        new ListItem("Site ID 6", "02/08/2016")
-                };
+        myDatabaseManager = new DatabaseManager(getActivity());
+
+        updateList();
+    }
+
+    private void updateList() {
+        myDatabaseManager.open();
+
+        RowElement[] rowElements = myDatabaseManager.getData();
+
+        myDatabaseManager.close();
 
         CustomAdapter adapter = new CustomAdapter(getActivity(),
-                R.layout.list_item, weather_data);
+                R.layout.list_item, rowElements);
 
         setListAdapter(adapter);
-
     }
 
-
-    private class ListItem {
-
-        public String siteID;
-        public String dateTime;
-
-        public ListItem(String siteID, String dateTime) {
-            this.siteID = siteID;
-            this.dateTime = dateTime;
-        }
-
-    }
-
-    private class CustomAdapter extends ArrayAdapter<ListItem> {
+    private class CustomAdapter extends ArrayAdapter<RowElement> {
 
         Context context;
         int layoutResourceId;
-        ListItem data[] = null;
+        RowElement data[] = null;
 
-        public CustomAdapter(Context context, int layoutResourceId, ListItem[] data) {
+        public CustomAdapter(Context context, int layoutResourceId, RowElement[] data) {
             super(context, layoutResourceId, data);
             this.layoutResourceId = layoutResourceId;
             this.context = context;
@@ -88,9 +79,9 @@ public class MyListFragment extends ListFragment {
                 holder = (ListItemHolder) row.getTag();
             }
 
-            ListItem listItem = data[position];
-            holder.tvSiteID.setText(listItem.siteID);
-            holder.tvDateTime.setText(listItem.dateTime);
+            RowElement listItem = data[position];
+            holder.tvSiteID.setText(listItem.getSiteID());
+            holder.tvDateTime.setText(listItem.getSiteLocation());
 
             return row;
         }
@@ -101,5 +92,11 @@ public class MyListFragment extends ListFragment {
             TextView tvDateTime;
         }
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateList();
     }
 }
