@@ -1,6 +1,7 @@
 package com.vishal.giddu.btp;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 /**
@@ -18,10 +20,28 @@ public class MyListFragment extends ListFragment {
 
     DatabaseManager myDatabaseManager;
 
+    //for accessing data, need to change, pick data from table
+    RowElement[] rowElements;
+
+    //for dialog
+    Dialog dialogView;
+    TextView uniqueID, siteID, siteLocation, parameter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
+
+        //setting dialog
+        dialogView = new Dialog(getActivity());
+
+        dialogView.setContentView(R.layout.dialog_list_view);
+
+        uniqueID = (TextView) dialogView.findViewById(R.id.d_unique_id);
+        siteID = (TextView) dialogView.findViewById(R.id.d_site_id);
+        siteLocation = (TextView) dialogView.findViewById(R.id.d_site_location);
+        parameter = (TextView) dialogView.findViewById(R.id.d_parameter);
+
         return view;
     }
 
@@ -38,7 +58,7 @@ public class MyListFragment extends ListFragment {
     private void updateList() {
         myDatabaseManager.open();
 
-        RowElement[] rowElements = myDatabaseManager.getData();
+        rowElements = myDatabaseManager.getData();
 
         myDatabaseManager.close();
 
@@ -98,5 +118,17 @@ public class MyListFragment extends ListFragment {
     public void onResume() {
         super.onResume();
         updateList();
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+
+        dialogView.show();
+
+        uniqueID.setText(rowElements[position].getUniqueID());
+        siteID.setText(rowElements[position].getSiteID());
+        siteLocation.setText(rowElements[position].getSiteLocation());
+        parameter.setText(rowElements[position].getParamter());
     }
 }
