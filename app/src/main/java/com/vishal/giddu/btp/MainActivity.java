@@ -1,5 +1,6 @@
 package com.vishal.giddu.btp;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -9,12 +10,32 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import cz.msebera.android.httpclient.Header;
+
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    DatabaseManager myDatabaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +82,95 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        displaySyncStatus();
+    }
+
+    //to display sync status
+    private void displaySyncStatus() {
+
+        DatabaseManager myDatabaseManager = new DatabaseManager(MainActivity.this);
+        myDatabaseManager.open();
+        Toast.makeText(MainActivity.this, myDatabaseManager.getSyncStatus(), Toast.LENGTH_SHORT).show();
+        myDatabaseManager.close();
+
+    }
+
+    private void syncDB() {
+
+        myDatabaseManager = new DatabaseManager(MainActivity.this);
+        myDatabaseManager.open();
+
+        final ProgressDialog prgDialog = new ProgressDialog(this);
+        prgDialog.setMessage("Syncing SQLite Data with Remote MySQL DB. Please wait...");
+        prgDialog.setCancelable(false);
+
+        //Create AsycHttpClient object
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        ArrayList<HashMap<String, String>> userList = myDatabaseManager.getAllEntry();
+        if (userList.size() != 0) {
+            if (myDatabaseManager.dbSyncCount() != 0) {
+                prgDialog.show();
+                //can change json name
+                params.put("usersJSON", myDatabaseManager.composeJSONfromSQLite());
+                //change url
+                client.post("http://10.0.2.2/btp/insertuser.php", params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                        try {
+                            String response = new String(responseBody, "UTF-8");
+                            Log.d("Response", response);
+                            prgDialog.hide();
+                            try {
+                                JSONArray arr = new JSONArray(response);
+                                System.out.println(arr.length());
+                                for (int i = 0; i < arr.length(); i++) {
+                                    JSONObject obj = (JSONObject) arr.get(i);
+                                    System.out.println(obj.get("unique_id"));
+                                    System.out.println(obj.get("status"));
+                                    myDatabaseManager.open();
+                                    myDatabaseManager.updateSyncStatus(obj.get("unique_id").toString(), obj.get("status").toString());
+                                    myDatabaseManager.close();
+                                }
+                                Toast.makeText(getApplicationContext(), "DB Sync completed!", Toast.LENGTH_LONG).show();
+                            } catch (JSONException e) {
+                                // TODO Auto-generated catch block
+                                Toast.makeText(getApplicationContext(), "Error Occured [Server's JSON response might be invalid]!", Toast.LENGTH_LONG).show();
+                                e.printStackTrace();
+                            }
+                        } catch (UnsupportedEncodingException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                        prgDialog.hide();
+                        if (statusCode == 404) {
+                            Toast.makeText(getApplicationContext(), "Requested resource not found", Toast.LENGTH_LONG).show();
+                        } else if (statusCode == 500) {
+                            Toast.makeText(getApplicationContext(), "Something went wrong at server end", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Unexpected Error occcured! [Most common Error: Device might not be connected to Internet]", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+
+                });
+            } else {
+                Toast.makeText(getApplicationContext(), "SQLite and Remote MySQL DBs are in Sync!", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "No data in SQLite DB, please do enter User name to perform Sync action", Toast.LENGTH_LONG).show();
+        }
+
+
+        myDatabaseManager.close();
+
     }
 
     @Override
@@ -89,6 +199,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //using for sync right now
+            syncDB();
             return true;
         }
 
