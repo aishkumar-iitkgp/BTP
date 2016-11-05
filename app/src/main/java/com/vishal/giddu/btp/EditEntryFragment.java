@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * Created by giddu on 5/11/16.
@@ -19,10 +20,14 @@ public class EditEntryFragment extends Fragment {
     Button bSubmit;
     Bundle bundle;
 
+    DatabaseManager myDatabaseManager;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_item, container, false);
+
+        myDatabaseManager = new DatabaseManager(getActivity());
 
         uniqueID = (EditText) view.findViewById(R.id.ef_et_unique_id);
         siteID = (EditText) view.findViewById(R.id.ef_et_site_id);
@@ -35,7 +40,12 @@ public class EditEntryFragment extends Fragment {
         bSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                myDatabaseManager.open();
+                myDatabaseManager.updateEntry(uniqueID.getText().toString(), siteID.getText().toString(),
+                        siteLocation.getText().toString(), parameter.getText().toString());
+                myDatabaseManager.close();
+                Toast.makeText(getActivity(), "Entry Updated", Toast.LENGTH_SHORT).show();
+                getActivity().getFragmentManager().popBackStack();
             }
         });
 

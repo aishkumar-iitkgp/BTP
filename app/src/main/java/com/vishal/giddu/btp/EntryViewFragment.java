@@ -59,4 +59,10 @@ public class EntryViewFragment extends Fragment {
             parameter.setText(bundle.getString("parameter"));
         }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //getActivity().getFragmentManager().popBackStack();
+    }
 }

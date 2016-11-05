@@ -217,5 +217,17 @@ public class DatabaseManager {
         ourDatabase.execSQL(updateQuery);
     }
 
+    public void updateEntry(String UniqueId, String SiteID, String SiteLocation, String Parameter) {
+
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_UNIQUE_ID, UniqueId);
+        cv.put(KEY_SITE_ID, SiteID);
+        cv.put(KEY_SITE_LOCATION, SiteLocation);
+        cv.put(KEY_PARAMETER, Parameter);
+        cv.put(KEY_UPDATE_STATUS, "no");
+
+        ourDatabase.update(DATABASE_TABLE, cv, KEY_UNIQUE_ID + "=" + UniqueId, null);
+    }
+
 
 }
