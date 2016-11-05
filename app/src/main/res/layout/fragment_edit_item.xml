@@ -6,35 +6,30 @@
     android:background="@android:color/white"
     android:clickable="true">
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/d_unique_id"
-        android:textColor="@android:color/black" />
+        android:id="@+id/ef_et_unique_id" />
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/d_site_id"
-        android:textColor="@android:color/black" />
+        android:id="@+id/ef_et_site_id" />
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/d_site_location"
-        android:textColor="@android:color/black" />
+        android:id="@+id/ef_et_site_location" />
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/d_parameter"
-        android:textColor="@android:color/black" />
+        android:id="@+id/ef_et_parameter" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/b_edit"
-        android:textColor="@android:color/black"
-        android:text="Edit" />
+        android:id="@+id/ef_b_submit"
+        android:text="Submit" />
 
 </LinearLayout>

@@ -1,7 +1,7 @@
 package com.vishal.giddu.btp;
 
 import android.app.Activity;
-import android.app.Dialog;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -24,8 +24,8 @@ public class MyListFragment extends ListFragment {
     RowElement[] rowElements;
 
     //for dialog
-    Dialog dialogView;
-    TextView uniqueID, siteID, siteLocation, parameter;
+//    Dialog dialogView;
+//    TextView uniqueID, siteID, siteLocation, parameter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,14 +33,14 @@ public class MyListFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
         //setting dialog
-        dialogView = new Dialog(getActivity());
-
-        dialogView.setContentView(R.layout.dialog_list_view);
-
-        uniqueID = (TextView) dialogView.findViewById(R.id.d_unique_id);
-        siteID = (TextView) dialogView.findViewById(R.id.d_site_id);
-        siteLocation = (TextView) dialogView.findViewById(R.id.d_site_location);
-        parameter = (TextView) dialogView.findViewById(R.id.d_parameter);
+//        dialogView = new Dialog(getActivity());
+//
+//        dialogView.setContentView(R.layout.dialog_list_view);
+//
+//        uniqueID = (TextView) dialogView.findViewById(R.id.d_unique_id);
+//        siteID = (TextView) dialogView.findViewById(R.id.d_site_id);
+//        siteLocation = (TextView) dialogView.findViewById(R.id.d_site_location);
+//        parameter = (TextView) dialogView.findViewById(R.id.d_parameter);
 
         return view;
     }
@@ -124,11 +124,28 @@ public class MyListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        dialogView.show();
+//        dialogView.show();
+//
+//        uniqueID.setText(rowElements[position].getUniqueID());
+//        siteID.setText(rowElements[position].getSiteID());
+//        siteLocation.setText(rowElements[position].getSiteLocation());
+//        parameter.setText(rowElements[position].getParamter());
 
-        uniqueID.setText(rowElements[position].getUniqueID());
-        siteID.setText(rowElements[position].getSiteID());
-        siteLocation.setText(rowElements[position].getSiteLocation());
-        parameter.setText(rowElements[position].getParamter());
+        EntryViewFragment entryViewFragment = new EntryViewFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", position);
+        bundle.putString("unique_id", rowElements[position].getUniqueID());
+        bundle.putString("site_id", rowElements[position].getSiteID());
+        bundle.putString("site_location", rowElements[position].getSiteLocation());
+        bundle.putString("parameter", rowElements[position].getParamter());
+
+        entryViewFragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.fragment_container, entryViewFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 }
