@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 public class EditEntryFragment extends Fragment {
 
-    EditText uniqueID, siteID, siteLocation, parameter;
+    EditText etUniqueID, etSiteID, etSiteLocation, etColour, etOdour, etTemp, etPH, etEC, etDO, etNO2NO3, etBOD, etTotalColiforms, etFaecalColiforms;
     Button bSubmit;
     Bundle bundle;
 
@@ -29,10 +29,22 @@ public class EditEntryFragment extends Fragment {
 
         myDatabaseManager = new DatabaseManager(getActivity());
 
-        uniqueID = (EditText) view.findViewById(R.id.ef_et_unique_id);
-        siteID = (EditText) view.findViewById(R.id.ef_et_site_id);
-        siteLocation = (EditText) view.findViewById(R.id.ef_et_site_location);
-        parameter = (EditText) view.findViewById(R.id.ef_et_parameter);
+        etUniqueID = (EditText) view.findViewById(R.id.unique_id);
+        etUniqueID.setEnabled(false);
+
+        etSiteID = (EditText) view.findViewById(R.id.site_id);
+        etSiteLocation = (EditText) view.findViewById(R.id.site_location);
+        etColour = (EditText) view.findViewById(R.id.colour);
+        etOdour = (EditText) view.findViewById(R.id.odour);
+        etTemp = (EditText) view.findViewById(R.id.temp);
+        etPH = (EditText) view.findViewById(R.id.ph);
+        etEC = (EditText) view.findViewById(R.id.ec);
+        etDO = (EditText) view.findViewById(R.id.p_do);
+        etNO2NO3 = (EditText) view.findViewById(R.id.no2no3);
+        etBOD = (EditText) view.findViewById(R.id.bod);
+        etTotalColiforms = (EditText) view.findViewById(R.id.total_coliforms);
+        etFaecalColiforms = (EditText) view.findViewById(R.id.faecal_coliforms);
+
         bSubmit = (Button) view.findViewById(R.id.ef_b_submit);
 
         set_values();
@@ -41,8 +53,19 @@ public class EditEntryFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 myDatabaseManager.open();
-                myDatabaseManager.updateEntry(uniqueID.getText().toString(), siteID.getText().toString(),
-                        siteLocation.getText().toString(), parameter.getText().toString());
+                myDatabaseManager.updateEntry(etUniqueID.getText().toString(),
+                        etSiteID.getText().toString(),
+                        etSiteLocation.getText().toString(),
+                        etColour.getText().toString(),
+                        etOdour.getText().toString(),
+                        etTemp.getText().toString(),
+                        etPH.getText().toString(),
+                        etEC.getText().toString(),
+                        etDO.getText().toString(),
+                        etNO2NO3.getText().toString(),
+                        etBOD.getText().toString(),
+                        etTotalColiforms.getText().toString(),
+                        etFaecalColiforms.getText().toString());
                 myDatabaseManager.close();
                 Toast.makeText(getActivity(), "Entry Updated", Toast.LENGTH_SHORT).show();
                 getActivity().getFragmentManager().popBackStack();
@@ -55,10 +78,25 @@ public class EditEntryFragment extends Fragment {
     private void set_values() {
         bundle = this.getArguments();
         if (bundle != null) {
-            uniqueID.setText(bundle.getString("unique_id"));
-            siteID.setText(bundle.getString("site_id"));
-            siteLocation.setText(bundle.getString("site_location"));
-            parameter.setText(bundle.getString("parameter"));
+
+            DatabaseManager databaseManager = new DatabaseManager(getActivity());
+            databaseManager.open();
+            RowElement rowElement = databaseManager.getEntry(bundle.getString("unique_id"));
+            databaseManager.close();
+
+            etUniqueID.setText(rowElement.getUniqueID());
+            etSiteID.setText(rowElement.getSiteID());
+            etSiteLocation.setText(rowElement.getSiteLocation());
+            etColour.setText(rowElement.getColour());
+            etOdour.setText(rowElement.getOdour());
+            etTemp.setText(rowElement.getTemp());
+            etPH.setText(rowElement.getPh());
+            etEC.setText(rowElement.getEc());
+            etDO.setText(rowElement.getP_do());
+            etNO2NO3.setText(rowElement.getNo2no3());
+            etBOD.setText(rowElement.getBod());
+            etTotalColiforms.setText(rowElement.getTotal_coliforms());
+            etFaecalColiforms.setText(rowElement.getFaecal_coliforms());
         }
     }
 }

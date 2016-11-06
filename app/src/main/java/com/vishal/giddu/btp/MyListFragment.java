@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,24 +24,31 @@ public class MyListFragment extends ListFragment {
     //for accessing data, need to change, pick data from table
     RowElement[] rowElements;
 
-    //for dialog
-//    Dialog dialogView;
-//    TextView uniqueID, siteID, siteLocation, parameter;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
-        //setting dialog
-//        dialogView = new Dialog(getActivity());
-//
-//        dialogView.setContentView(R.layout.dialog_list_view);
-//
-//        uniqueID = (TextView) dialogView.findViewById(R.id.d_unique_id);
-//        siteID = (TextView) dialogView.findViewById(R.id.d_site_id);
-//        siteLocation = (TextView) dialogView.findViewById(R.id.d_site_location);
-//        parameter = (TextView) dialogView.findViewById(R.id.d_parameter);
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                Intent i = new Intent(getActivity(), CreateEntryActivity.class);
+//                startActivity(i);
+
+                CreateEntryFragment createEntryFragment = new CreateEntryFragment();
+
+                FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fragment_container, createEntryFragment);
+                transaction.addToBackStack(null);
+
+                transaction.commit();
+
+
+            }
+        });
 
         return view;
     }
@@ -68,6 +76,38 @@ public class MyListFragment extends ListFragment {
         setListAdapter(adapter);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateList();
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+
+//        dialogView.show();
+//
+//        uniqueID.setText(rowElements[position].getUniqueID());
+//        siteID.setText(rowElements[position].getSiteID());
+//        siteLocation.setText(rowElements[position].getSiteLocation());
+//        parameter.setText(rowElements[position].getParamter());
+
+        EntryViewFragment entryViewFragment = new EntryViewFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt("position", position);
+        bundle.putString("unique_id", rowElements[position].getUniqueID());
+
+        entryViewFragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.fragment_container, entryViewFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
+    }
+
     private class CustomAdapter extends ArrayAdapter<RowElement> {
 
         Context context;
@@ -92,6 +132,7 @@ public class MyListFragment extends ListFragment {
 
                 holder = new ListItemHolder();
                 holder.tvSiteID = (TextView) row.findViewById(R.id.site_id);
+                holder.tvSiteLocation = (TextView) row.findViewById(R.id.site_location);
                 holder.tvDateTime = (TextView) row.findViewById(R.id.date_time);
 
                 row.setTag(holder);
@@ -100,8 +141,14 @@ public class MyListFragment extends ListFragment {
             }
 
             RowElement listItem = data[position];
-            holder.tvSiteID.setText(listItem.getSiteID());
-            holder.tvDateTime.setText(listItem.getSiteLocation());
+            holder.tvSiteID.setText("Site ID: " + listItem.getSiteID());
+            String unqiueID = listItem.getUniqueID();
+            String dateTime = "Date: " + unqiueID.substring(6, 8) + "/"
+                    + unqiueID.substring(4, 6) + "/" + unqiueID.substring(0, 4)
+                    + " Time: " + unqiueID.substring(8, 10) + ":"
+                    + unqiueID.substring(10, 12) + ":" + unqiueID.substring(12);
+            holder.tvDateTime.setText(dateTime);
+            holder.tvSiteLocation.setText("Site Location: " + listItem.getSiteLocation());
 
             return row;
         }
@@ -109,43 +156,9 @@ public class MyListFragment extends ListFragment {
         //somehow make it static
         class ListItemHolder {
             TextView tvSiteID;
+            TextView tvSiteLocation;
             TextView tvDateTime;
         }
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateList();
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-
-//        dialogView.show();
-//
-//        uniqueID.setText(rowElements[position].getUniqueID());
-//        siteID.setText(rowElements[position].getSiteID());
-//        siteLocation.setText(rowElements[position].getSiteLocation());
-//        parameter.setText(rowElements[position].getParamter());
-
-        EntryViewFragment entryViewFragment = new EntryViewFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("position", position);
-        bundle.putString("unique_id", rowElements[position].getUniqueID());
-        bundle.putString("site_id", rowElements[position].getSiteID());
-        bundle.putString("site_location", rowElements[position].getSiteLocation());
-        bundle.putString("parameter", rowElements[position].getParamter());
-
-        entryViewFragment.setArguments(bundle);
-
-        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
-
-        transaction.replace(R.id.fragment_container, entryViewFragment);
-        transaction.addToBackStack(null);
-
-        transaction.commit();
     }
 }
