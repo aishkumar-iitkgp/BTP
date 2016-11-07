@@ -82,7 +82,7 @@ public class DatabaseManager {
         String[] columns = new String[]{KEY_ROWID, KEY_UNIQUE_ID, KEY_SITE_ID, KEY_SITE_LOCATION, KEY_COLOUR
                 , KEY_ODOUR, KEY_TEMP, KEY_PH, KEY_EC, KEY_DO, KEY_NO2NO3
                 , KEY_BOD, KEY_TOTAL_COLIFORMS, KEY_FAECAL_COLIFORMS};
-        Cursor c = ourDatabase.query(DATABASE_TABLE, columns, null, null, null, null, null);
+        Cursor c = ourDatabase.query(DATABASE_TABLE, columns, null, null, null, null, KEY_ROWID + " DESC");
         //for return array
         RowElement[] result = new RowElement[c.getCount()];
         Log.d("Size", "" + c.getCount());

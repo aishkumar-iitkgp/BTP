@@ -104,8 +104,11 @@ public class MyListFragment extends ListFragment {
 
         transaction.replace(R.id.fragment_container, entryViewFragment);
         transaction.addToBackStack(null);
-
         transaction.commit();
+    }
+
+    public void onFragBack() {
+        updateList();
     }
 
     private class CustomAdapter extends ArrayAdapter<RowElement> {

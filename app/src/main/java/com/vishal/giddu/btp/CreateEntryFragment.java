@@ -86,5 +86,8 @@ public class CreateEntryFragment extends Fragment {
                 etFaecalColiforms.getText().toString());
 
         entry.close();
+
+        getActivity().getFragmentManager().popBackStack();
+
     }
 }

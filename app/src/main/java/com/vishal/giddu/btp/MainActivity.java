@@ -6,6 +6,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,6 +32,8 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    final String LOCAL_URL = "http://10.0.2.2/btp/insertuser.php";
+    final String REMOTE_URL = "http://giddu.comxa.com/btp/insertuser.php";
     DatabaseManager myDatabaseManager;
 
     @Override
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity
                 //can change json name
                 params.put("usersJSON", myDatabaseManager.composeJSONfromSQLite());
                 //change url
-                client.post("http://10.0.2.2/btp/insertuser.php", params, new AsyncHttpResponseHandler() {
+                client.post(REMOTE_URL, params, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
@@ -196,8 +199,17 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_sync) {
-            syncDB();
+        switch (id) {
+            case R.id.nav_sync:
+                syncDB();
+                break;
+            case R.id.nav_feedback:
+                break;
+            case R.id.nav_about:
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("About").setMessage("This Application was built by \nVishal Gidwani as part of his BTP");
+                builder.create().show();
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
