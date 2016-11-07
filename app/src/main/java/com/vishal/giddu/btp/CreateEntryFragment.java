@@ -83,7 +83,7 @@ public class CreateEntryFragment extends Fragment {
                 etNO2NO3.getText().toString(),
                 etBOD.getText().toString(),
                 etTotalColiforms.getText().toString(),
-                etFaecalColiforms.getText().toString());
+                etFaecalColiforms.getText().toString(), "no");
 
         entry.close();
 

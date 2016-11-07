@@ -57,7 +57,7 @@ public class DatabaseManager {
 
     public long createEntry(String uniqueID, String siteID, String siteLocation, String colour
             , String odour, String temp, String ph, String ec, String p_do
-            , String no2no3, String bod, String total_coliforms, String faecal_coliforms) {
+            , String no2no3, String bod, String total_coliforms, String faecal_coliforms, String status) {
         ContentValues cv = new ContentValues();
 
         cv.put(KEY_UNIQUE_ID, uniqueID);
@@ -73,7 +73,7 @@ public class DatabaseManager {
         cv.put(KEY_BOD, bod);
         cv.put(KEY_TOTAL_COLIFORMS, total_coliforms);
         cv.put(KEY_FAECAL_COLIFORMS, faecal_coliforms);
-        cv.put(KEY_UPDATE_STATUS, "no");
+        cv.put(KEY_UPDATE_STATUS, status);
 
         return ourDatabase.insert(DATABASE_TABLE, null, cv);
     }
@@ -294,6 +294,7 @@ public class DatabaseManager {
         ourDatabase.update(DATABASE_TABLE, cv, KEY_UNIQUE_ID + "=" + UniqueId, null);
     }
 
+
     public RowElement getEntry(String uniqueID) {
         RowElement rowElement = new RowElement();
 
@@ -350,7 +351,7 @@ public class DatabaseManager {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + DATABASE_TABLE + " (" +
                     KEY_ROWID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    KEY_UNIQUE_ID + " TEXT NOT NULL, " +
+                    KEY_UNIQUE_ID + " TEXT NOT NULL UNIQUE, " +
                     KEY_SITE_ID + " TEXT NOT NULL, " +
                     KEY_SITE_LOCATION + " TEXT NOT NULL, " +
                     KEY_COLOUR + " TEXT NOT NULL, " +

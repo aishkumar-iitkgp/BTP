@@ -3,6 +3,7 @@ package com.vishal.giddu.btp;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity
 
     final String LOCAL_URL = "http://10.0.2.2/btp/insertuser.php";
     final String REMOTE_URL = "http://giddu.comxa.com/btp/insertuser.php";
+    final String REMOTE_GET_URL = "http://giddu.comxa.com/btp/getAllEntry.php";
     DatabaseManager myDatabaseManager;
 
     @Override
@@ -161,16 +163,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -200,8 +192,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.nav_home:
+                //FragmentManager fm = getSupportFragmentManager();
+                //getSupportFragmentManager().popBackStack("list_fragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                //fm.beginTransaction().add(R.id.fragment_container, new MyListFragment()).commit();
+                Log.d("Count", getSupportFragmentManager().getBackStackEntryCount() + "");
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, new MyListFragment()).commit();
+                break;
             case R.id.nav_sync:
                 syncDB();
+                break;
+            case R.id.nav_reverse_sync:
+                //syncDB();
+                reverseSync();
                 break;
             case R.id.nav_feedback:
                 break;
@@ -217,4 +221,80 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Log.d("Count", getSupportFragmentManager().getBackStackEntryCount() + "");
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void reverseSync() {
+
+
+        final DatabaseManager myDBManager = new DatabaseManager(MainActivity.this);
+        myDBManager.open();
+
+        final ProgressDialog prgDialog = new ProgressDialog(this);
+        prgDialog.setMessage("Syncing SQLite Data from Remote MySQL DB. Please wait...");
+        prgDialog.setCancelable(false);
+        prgDialog.show();
+
+        AsyncHttpClient client = new AsyncHttpClient();
+
+        client.get(REMOTE_GET_URL, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                try {
+                    String response = new String(responseBody, "UTF-8");
+                    Log.d("Response", response);
+                    prgDialog.hide();
+                    try {
+                        JSONArray arr = new JSONArray(response);
+                        System.out.println(arr.length());
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject obj = (JSONObject) arr.get(i);
+                            myDBManager.open();
+                            myDBManager.createEntry(obj.get("unique_id").toString(), obj.get("site_id").toString()
+                                    , obj.get("site_location").toString(), obj.get("colour").toString()
+                                    , obj.get("odour").toString(), obj.get("temp").toString()
+                                    , obj.get("ph").toString(), obj.get("ec").toString()
+                                    , obj.get("do").toString(), obj.get("no2no3").toString(), obj.get("bod").toString()
+                                    , obj.get("total_coliforms").toString(), obj.get("faecal_coliforms").toString(), "yes");
+                            myDBManager.close();
+                        }
+                        Toast.makeText(getApplicationContext(), "DB Sync completed!", Toast.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        // TODO Auto-generated catch block
+                        Toast.makeText(getApplicationContext(), "Error Occurred [Server's JSON response might be invalid]!", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+                } catch (UnsupportedEncodingException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+                prgDialog.hide();
+                if (statusCode == 404) {
+                    Toast.makeText(getApplicationContext(), "Requested resource not found", Toast.LENGTH_LONG).show();
+                } else if (statusCode == 500) {
+                    Toast.makeText(getApplicationContext(), "Something went wrong at server end", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Unexpected Error occcured! [Most common Error: Device might not be connected to Internet]", Toast.LENGTH_LONG).show();
+                }
+
+            }
+
+
+        });
+        myDBManager.close();
+    }
 }
